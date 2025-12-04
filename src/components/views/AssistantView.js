@@ -9,21 +9,25 @@ export class AssistantView extends LitElement {
         }
 
         * {
-            font-family: 'Inter', sans-serif;
-            cursor: default;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: var(--custom-cursor);
         }
 
         .response-container {
             height: calc(100% - 60px);
             overflow-y: auto;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             font-size: var(--response-font-size, 18px);
             line-height: 1.6;
-            background: var(--main-content-background);
-            padding: 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
             scroll-behavior: smooth;
             user-select: text;
             cursor: text;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         /* Allow text selection for all content within the response container */
@@ -105,9 +109,9 @@ export class AssistantView extends LitElement {
         }
 
         .response-container code {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 58, 138, 0.2);
             padding: 0.2em 0.4em;
-            border-radius: 3px;
+            border-radius: 6px;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.85em;
         }
@@ -115,7 +119,7 @@ export class AssistantView extends LitElement {
         .response-container pre {
             background: var(--input-background);
             border: 1px solid var(--button-border);
-            border-radius: 6px;
+            border-radius: var(--border-radius-sm);
             padding: 1em;
             overflow-x: auto;
             margin: 1em 0;
@@ -198,19 +202,24 @@ export class AssistantView extends LitElement {
 
         .text-input-container input {
             flex: 1;
-            background: var(--input-background);
+            background: var(--glass-bg);
             color: var(--text-color);
-            border: 1px solid var(--button-border);
-            padding: 10px 14px;
-            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            padding: 12px 16px;
+            border-radius: var(--border-radius-sm);
             font-size: 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .text-input-container input:focus {
             outline: none;
             border-color: var(--focus-border-color);
-            box-shadow: 0 0 0 3px var(--focus-box-shadow);
-            background: var(--input-focus-background);
+            box-shadow: 0 0 0 1px var(--focus-border-color), 0 4px 12px rgba(59, 130, 246, 0.15);
+            background: var(--input-background-focus);
         }
 
         .text-input-container input::placeholder {
@@ -230,21 +239,28 @@ export class AssistantView extends LitElement {
         }
 
         .nav-button {
-            background: transparent;
+            background: var(--button-background);
             color: white;
-            border: none;
-            padding: 4px;
+            border: 1px solid var(--glass-border);
+            padding: 6px;
             border-radius: 50%;
             font-size: 12px;
+            font-family: 'Space Grotesk', sans-serif;
             display: flex;
             align-items: center;
             width: 36px;
             height: 36px;
             justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .nav-button:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--button-background-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .nav-button:disabled {
@@ -264,22 +280,29 @@ export class AssistantView extends LitElement {
         }
 
         .save-button {
-            background: transparent;
+            background: var(--button-background);
             color: var(--start-button-background);
-            border: none;
-            padding: 4px;
+            border: 1px solid var(--glass-border);
+            padding: 6px;
             border-radius: 50%;
             font-size: 12px;
+            font-family: 'Space Grotesk', sans-serif;
             display: flex;
             align-items: center;
             width: 36px;
             height: 36px;
             justify-content: center;
             cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .save-button:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--button-background-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .save-button.saved {

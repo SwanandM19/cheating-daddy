@@ -4,13 +4,13 @@ export class OnboardingView extends LitElement {
     static styles = css`
         * {
             font-family:
-                'Inter',
+                'Space Grotesk',
                 -apple-system,
                 BlinkMacSystemFont,
                 'Segoe UI',
                 Roboto,
                 sans-serif;
-            cursor: default;
+            cursor: var(--custom-cursor);
             user-select: none;
             margin: 0;
             padding: 0;
@@ -31,7 +31,7 @@ export class OnboardingView extends LitElement {
             position: relative;
             width: 100%;
             height: 100%;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #000000 0%, #0a0e27 25%, #0f172a 50%, #1e293b 75%, #1e3a8a 100%);
             overflow: hidden;
         }
 
@@ -88,26 +88,30 @@ export class OnboardingView extends LitElement {
             width: 100%;
             height: 100px;
             padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #e5e5e5;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            background: var(--glass-bg);
+            color: var(--text-color);
             font-size: 14px;
-            font-family: inherit;
+            font-family: 'Space Grotesk', sans-serif;
             resize: vertical;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             margin-bottom: 24px;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .context-textarea::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--placeholder-color);
             font-size: 14px;
         }
 
         .context-textarea:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--focus-border-color);
+            background: var(--input-background-focus);
+            box-shadow: 0 0 0 1px var(--focus-border-color), 0 4px 12px rgba(59, 130, 246, 0.15);
         }
 
         .feature-list {
@@ -138,37 +142,43 @@ export class OnboardingView extends LitElement {
             align-items: center;
             justify-content: space-between;
             padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(30, 58, 138, 0.3);
             backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
             height: 60px;
             box-sizing: border-box;
         }
 
         .nav-button {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e5e5e5;
-            padding: 8px 16px;
-            border-radius: 6px;
+            background: var(--button-background);
+            border: 1px solid var(--glass-border);
+            color: var(--text-color);
+            padding: 10px 18px;
+            border-radius: var(--border-radius-sm);
             font-size: 13px;
             font-weight: 500;
+            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 36px;
-            min-height: 36px;
+            min-width: 40px;
+            min-height: 40px;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .nav-button:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--button-background-hover);
+            border-color: var(--glass-border);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .nav-button:active {
-            transform: scale(0.98);
+            transform: translateY(0);
         }
 
         .nav-button:disabled {

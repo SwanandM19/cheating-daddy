@@ -149,8 +149,9 @@ function arrayBufferToBase64(buffer) {
     return btoa(binary);
 }
 
-async function initializeGemini(profile = 'interview', language = 'en-US') {
-    const apiKey = localStorage.getItem('apiKey')?.trim();
+async function initializeGemini(apiKeyParam, profile = 'interview', language = 'en-US') {
+    // Accept API key as parameter, or fall back to localStorage
+    const apiKey = apiKeyParam || localStorage.getItem('geminiApiKey')?.trim() || localStorage.getItem('apiKey')?.trim();
     if (apiKey) {
         const success = await ipcRenderer.invoke('initialize-gemini', apiKey, localStorage.getItem('customPrompt') || '', profile, language);
         if (success) {
@@ -158,7 +159,9 @@ async function initializeGemini(profile = 'interview', language = 'en-US') {
         } else {
             cheddar.setStatus('error');
         }
+        return success;
     }
+    return false;
 }
 
 // Listen for status updates
@@ -745,22 +748,59 @@ function handleShortcut(shortcutKey) {
     }
 }
 
-// Create reference to the main app element
+// Create reference to the main app element (for Lit version)
+// For React version, these will be null but we provide fallbacks
 const cheatingDaddyApp = document.querySelector('cheating-daddy-app');
+
+// React compatibility - store callbacks that React components can register
+window._cheddarCallbacks = {
+    onStatusChange: null,
+    onResponseChange: null,
+    onViewChange: null,
+};
 
 // Consolidated cheddar object - all functions in one place
 const cheddar = {
-    // Element access
+    // Element access (legacy - for Lit compatibility)
     element: () => cheatingDaddyApp,
     e: () => cheatingDaddyApp,
 
-    // App state functions - access properties directly from the app element
-    getCurrentView: () => cheatingDaddyApp.currentView,
-    getLayoutMode: () => cheatingDaddyApp.layoutMode,
+    // App state functions - with React fallbacks
+    getCurrentView: () => cheatingDaddyApp?.currentView || localStorage.getItem('currentView') || 'main',
+    getLayoutMode: () => cheatingDaddyApp?.layoutMode || localStorage.getItem('layoutMode') || 'normal',
 
-    // Status and response functions
-    setStatus: text => cheatingDaddyApp.setStatus(text),
-    setResponse: response => cheatingDaddyApp.setResponse(response),
+    // Status and response functions - with React fallbacks
+    setStatus: text => {
+        if (cheatingDaddyApp?.setStatus) {
+            cheatingDaddyApp.setStatus(text);
+        } else {
+            // React fallback - emit via IPC or callback
+            console.log('[cheddar.setStatus]', text);
+            if (window._cheddarCallbacks.onStatusChange) {
+                window._cheddarCallbacks.onStatusChange(text);
+            }
+        }
+    },
+    setResponse: response => {
+        if (cheatingDaddyApp?.setResponse) {
+            cheatingDaddyApp.setResponse(response);
+        } else {
+            // React fallback - emit via IPC
+            console.log('[cheddar.setResponse]', response);
+            if (window._cheddarCallbacks.onResponseChange) {
+                window._cheddarCallbacks.onResponseChange(response);
+            }
+            // Also emit as IPC event for React to catch
+            ipcRenderer.emit('ai-response-internal', null, response);
+        }
+    },
+
+    // Register React callbacks
+    registerCallbacks: (callbacks) => {
+        if (callbacks.onStatusChange) window._cheddarCallbacks.onStatusChange = callbacks.onStatusChange;
+        if (callbacks.onResponseChange) window._cheddarCallbacks.onResponseChange = callbacks.onResponseChange;
+        if (callbacks.onViewChange) window._cheddarCallbacks.onViewChange = callbacks.onViewChange;
+    },
 
     // Core functionality
     initializeGemini,

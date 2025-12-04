@@ -1,15 +1,25 @@
-import { html, css, LitElement } from '../../assets/lit-core-2.7.4.min.js';
 import { resizeLayout } from '../../utils/windowResize.js';
 
-export class AdvancedView extends LitElement {
-    static styles = css`
+export class AdvancedView extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.isClearing = false;
+        this.statusMessage = '';
+        this.statusType = '';
+        this.throttleTokens = true;
+        this.maxTokensPerMin = 1000000;
+        this.throttleAtPercent = 75;
+        this.contentProtection = true;
+        this.loadRateLimitSettings();
+        this.loadContentProtectionSetting();
+    }
+
+    static get styles() {
+        return `
         * {
-            font-family:
-                'Inter',
-                -apple-system,
-                BlinkMacSystemFont,
-                sans-serif;
-            cursor: default;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: var(--custom-cursor);
             user-select: none;
         }
 
@@ -27,11 +37,13 @@ export class AdvancedView extends LitElement {
         }
 
         .advanced-section {
-            background: var(--card-background, rgba(255, 255, 255, 0.04));
-            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-            border-radius: 6px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
             padding: 16px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .danger-section {
@@ -102,36 +114,45 @@ export class AdvancedView extends LitElement {
             line-height: 1.4;
         }
 
-        .warning-icon,
-        .danger-icon {
+        .warning-icon, .danger-icon {
             flex-shrink: 0;
             font-size: 12px;
             margin-top: 1px;
         }
 
         .action-button {
-            background: var(--button-background, rgba(255, 255, 255, 0.1));
+            background: var(--button-background);
             color: var(--text-color);
-            border: 1px solid var(--button-border, rgba(255, 255, 255, 0.15));
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 11px;
+            border: 1px solid var(--glass-border);
+            padding: 10px 16px;
+            border-radius: var(--border-radius-sm);
+            font-size: 12px;
             font-weight: 500;
+            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             width: fit-content;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .action-button:hover {
-            background: var(--button-hover-background, rgba(255, 255, 255, 0.15));
-            border-color: var(--button-hover-border, rgba(255, 255, 255, 0.25));
+            background: var(--button-background-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .action-button:active {
-            transform: translateY(1px);
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .danger-button {
@@ -143,53 +164,6 @@ export class AdvancedView extends LitElement {
         .danger-button:hover {
             background: var(--danger-button-hover, rgba(239, 68, 68, 0.15));
             border-color: var(--danger-border-hover, rgba(239, 68, 68, 0.4));
-        }
-
-        .action-description {
-            font-size: 11px;
-            color: var(--description-color, rgba(255, 255, 255, 0.5));
-            line-height: 1.3;
-            margin-top: 8px;
-        }
-
-        .status-message {
-            margin-top: 12px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .status-success {
-            background: var(--success-background, rgba(34, 197, 94, 0.1));
-            color: var(--success-color, #22c55e);
-            border: 1px solid var(--success-border, rgba(34, 197, 94, 0.2));
-        }
-
-        .status-error {
-            background: var(--danger-background, rgba(239, 68, 68, 0.1));
-            color: var(--danger-color, #ef4444);
-            border: 1px solid var(--danger-border, rgba(239, 68, 68, 0.2));
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .feature-list li {
-            font-size: 12px;
-            color: var(--text-color);
-            padding: 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .feature-list li::before {
-            content: '🔧';
-            font-size: 10px;
         }
 
         .form-grid {
@@ -251,9 +225,9 @@ export class AdvancedView extends LitElement {
             background: var(--input-focus-background, rgba(0, 0, 0, 0.4));
         }
 
-        .form-control:hover:not(:focus) {
-            border-color: var(--input-hover-border, rgba(255, 255, 255, 0.2));
-            background: var(--input-hover-background, rgba(0, 0, 0, 0.35));
+        .form-control:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .checkbox-group {
@@ -317,58 +291,44 @@ export class AdvancedView extends LitElement {
             font-size: 12px;
             margin-top: 1px;
         }
-    `;
 
-    static properties = {
-        isClearing: { type: Boolean },
-        statusMessage: { type: String },
-        statusType: { type: String },
-        throttleTokens: { type: Boolean },
-        maxTokensPerMin: { type: Number },
-        throttleAtPercent: { type: Number },
-        contentProtection: { type: Boolean },
-    };
+        .status-message {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
 
-    constructor() {
-        super();
-        this.isClearing = false;
-        this.statusMessage = '';
-        this.statusType = '';
+        .status-success {
+            background: var(--success-background, rgba(34, 197, 94, 0.1));
+            color: var(--success-color, #22c55e);
+            border: 1px solid var(--success-border, rgba(34, 197, 94, 0.2));
+        }
 
-        // Rate limiting defaults
-        this.throttleTokens = true;
-        this.maxTokensPerMin = 1000000;
-        this.throttleAtPercent = 75;
-
-        // Content protection default
-        this.contentProtection = true;
-
-        this.loadRateLimitSettings();
-        this.loadContentProtectionSetting();
+        .status-error {
+            background: var(--danger-background, rgba(239, 68, 68, 0.1));
+            color: var(--danger-color, #ef4444);
+            border: 1px solid var(--danger-border, rgba(239, 68, 68, 0.2));
+        }
+        `;
     }
 
     connectedCallback() {
-        super.connectedCallback();
-        // Resize window for this view
+        this.render();
         resizeLayout();
     }
 
     async clearLocalData() {
         if (this.isClearing) return;
-
         this.isClearing = true;
         this.statusMessage = '';
         this.statusType = '';
-        this.requestUpdate();
+        this.update();
 
         try {
-            // Clear localStorage
             localStorage.clear();
-
-            // Clear sessionStorage
             sessionStorage.clear();
-
-            // Clear IndexedDB databases
             const databases = await indexedDB.databases();
             const clearPromises = databases.map(db => {
                 return new Promise((resolve, reject) => {
@@ -377,28 +337,21 @@ export class AdvancedView extends LitElement {
                     deleteReq.onerror = () => reject(deleteReq.error);
                     deleteReq.onblocked = () => {
                         console.warn(`Deletion of database ${db.name} was blocked`);
-                        resolve(); // Continue anyway
+                        resolve();
                     };
                 });
             });
-
             await Promise.all(clearPromises);
-
-            // Clear any other browser storage
             if ('caches' in window) {
                 const cacheNames = await caches.keys();
                 await Promise.all(cacheNames.map(name => caches.delete(name)));
             }
-
             this.statusMessage = `✅ Successfully cleared all local data (${databases.length} databases, localStorage, sessionStorage, and caches)`;
             this.statusType = 'success';
-
-            // Notify user that app will close
             setTimeout(() => {
                 this.statusMessage = '🔄 Closing application...';
-                this.requestUpdate();
+                this.update();
                 setTimeout(async () => {
-                    // Close the entire application
                     if (window.require) {
                         const { ipcRenderer } = window.require('electron');
                         await ipcRenderer.invoke('quit-application');
@@ -411,16 +364,14 @@ export class AdvancedView extends LitElement {
             this.statusType = 'error';
         } finally {
             this.isClearing = false;
-            this.requestUpdate();
+            this.update();
         }
     }
 
-    // Rate limiting methods
     loadRateLimitSettings() {
         const throttleTokens = localStorage.getItem('throttleTokens');
         const maxTokensPerMin = localStorage.getItem('maxTokensPerMin');
         const throttleAtPercent = localStorage.getItem('throttleAtPercent');
-
         if (throttleTokens !== null) {
             this.throttleTokens = throttleTokens === 'true';
         }
@@ -435,7 +386,7 @@ export class AdvancedView extends LitElement {
     handleThrottleTokensChange(e) {
         this.throttleTokens = e.target.checked;
         localStorage.setItem('throttleTokens', this.throttleTokens.toString());
-        this.requestUpdate();
+        this.update();
     }
 
     handleMaxTokensChange(e) {
@@ -452,21 +403,19 @@ export class AdvancedView extends LitElement {
             this.throttleAtPercent = value;
             localStorage.setItem('throttleAtPercent', this.throttleAtPercent.toString());
         }
+        this.update();
     }
 
     resetRateLimitSettings() {
         this.throttleTokens = true;
         this.maxTokensPerMin = 1000000;
         this.throttleAtPercent = 75;
-
         localStorage.removeItem('throttleTokens');
         localStorage.removeItem('maxTokensPerMin');
         localStorage.removeItem('throttleAtPercent');
-
-        this.requestUpdate();
+        this.update();
     }
 
-    // Content protection methods
     loadContentProtectionSetting() {
         const contentProtection = localStorage.getItem('contentProtection');
         this.contentProtection = contentProtection !== null ? contentProtection === 'true' : true;
@@ -475,8 +424,6 @@ export class AdvancedView extends LitElement {
     async handleContentProtectionChange(e) {
         this.contentProtection = e.target.checked;
         localStorage.setItem('contentProtection', this.contentProtection.toString());
-        
-        // Update the window's content protection in real-time
         if (window.require) {
             const { ipcRenderer } = window.require('electron');
             try {
@@ -485,146 +432,115 @@ export class AdvancedView extends LitElement {
                 console.error('Failed to update content protection:', error);
             }
         }
-        
-        this.requestUpdate();
+        this.update();
     }
 
-
+    update() {
+        this.render();
+    }
 
     render() {
-        return html`
-            <div class="advanced-container">
-                <!-- Content Protection Section -->
-                <div class="advanced-section">
-                    <div class="section-title">
-                        <span>🔒 Content Protection</span>
-                    </div>
-                    <div class="advanced-description">
-                        Content protection makes the application window invisible to screen sharing and recording software. 
-                        This is useful for privacy when sharing your screen, but may interfere with certain display setups like DisplayLink.
-                    </div>
+        const style = document.createElement('style');
+        style.textContent = AdvancedView.styles;
 
-                    <div class="form-grid">
-                        <div class="checkbox-group">
-                            <input
-                                type="checkbox"
-                                class="checkbox-input"
-                                id="content-protection"
-                                .checked=${this.contentProtection}
-                                @change=${this.handleContentProtectionChange}
-                            />
-                            <label for="content-protection" class="checkbox-label">
-                                Enable content protection (stealth mode)
-                            </label>
-                        </div>
-                        <div class="form-description" style="margin-left: 22px;">
-                            ${this.contentProtection 
-                                ? 'The application is currently invisible to screen sharing and recording software.' 
-                                : 'The application is currently visible to screen sharing and recording software.'}
-                        </div>
-                    </div>
+        const container = document.createElement('div');
+        container.className = 'advanced-container';
+
+        // Content Protection Section
+        const contentProtectionSection = document.createElement('div');
+        contentProtectionSection.className = 'advanced-section';
+        contentProtectionSection.innerHTML = `
+            <div class="section-title"><span>🔒 Content Protection</span></div>
+            <div class="advanced-description">
+                Content protection makes the application window invisible to screen sharing and recording software. 
+                This is useful for privacy when sharing your screen, but may interfere with certain display setups like DisplayLink.
+            </div>
+            <div class="form-grid">
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="content-protection" ${this.contentProtection ? 'checked' : ''} />
+                    <label for="content-protection" class="checkbox-label">Enable content protection (stealth mode)</label>
                 </div>
+                <div class="form-description" style="margin-left: 22px;">
+                    ${this.contentProtection 
+                        ? 'The application is currently invisible to screen sharing and recording software.' 
+                        : 'The application is currently visible to screen sharing and recording software.'}
+                </div>
+            </div>
+        `;
+        const contentProtectionCheckbox = contentProtectionSection.querySelector('#content-protection');
+        contentProtectionCheckbox.addEventListener('change', (e) => this.handleContentProtectionChange(e));
 
-                <!-- Rate Limiting Section -->
-                <div class="advanced-section">
-                    <div class="section-title">
-                        <span>⏱️ Rate Limiting</span>
-                    </div>
-
-                    <div class="rate-limit-warning">
-                        <span class="rate-limit-warning-icon">⚠️</span>
-                        <span
-                            ><strong>Warning:</strong> Don't mess with these settings if you don't know what this is about. Incorrect rate limiting
-                            settings may cause the application to stop working properly or hit API limits unexpectedly.</span
-                        >
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="checkbox-group">
-                            <input
-                                type="checkbox"
-                                class="checkbox-input"
-                                id="throttle-tokens"
-                                .checked=${this.throttleTokens}
-                                @change=${this.handleThrottleTokensChange}
-                            />
-                            <label for="throttle-tokens" class="checkbox-label"> Throttle tokens when close to rate limit </label>
+        // Rate Limiting Section
+        const rateLimitSection = document.createElement('div');
+        rateLimitSection.className = 'advanced-section';
+        rateLimitSection.innerHTML = `
+            <div class="section-title"><span>⏱️ Rate Limiting</span></div>
+            <div class="rate-limit-warning">
+                <span class="rate-limit-warning-icon">⚠️</span>
+                <span><strong>Warning:</strong> Don't mess with these settings if you don't know what this is about. Incorrect rate limiting settings may cause the application to stop working properly or hit API limits unexpectedly.</span>
+            </div>
+            <div class="form-grid">
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox-input" id="throttle-tokens" ${this.throttleTokens ? 'checked' : ''} />
+                    <label for="throttle-tokens" class="checkbox-label">Throttle tokens when close to rate limit</label>
+                </div>
+                <div class="rate-limit-controls ${this.throttleTokens ? 'enabled' : ''}">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max Allowed Tokens Per Minute</label>
+                            <input type="number" class="form-control" value="${this.maxTokensPerMin}" min="1000" max="10000000" step="1000" ${!this.throttleTokens ? 'disabled' : ''} />
+                            <div class="form-description">Maximum number of tokens allowed per minute before throttling kicks in</div>
                         </div>
-
-                        <div class="rate-limit-controls ${this.throttleTokens ? 'enabled' : ''}">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Max Allowed Tokens Per Minute</label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        .value=${this.maxTokensPerMin}
-                                        min="1000"
-                                        max="10000000"
-                                        step="1000"
-                                        @input=${this.handleMaxTokensChange}
-                                        ?disabled=${!this.throttleTokens}
-                                    />
-                                    <div class="form-description">Maximum number of tokens allowed per minute before throttling kicks in</div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Throttle At Percent</label>
-                                    <input
-                                        type="number"
-                                        class="form-control"
-                                        .value=${this.throttleAtPercent}
-                                        min="1"
-                                        max="99"
-                                        step="1"
-                                        @input=${this.handleThrottlePercentChange}
-                                        ?disabled=${!this.throttleTokens}
-                                    />
-                                    <div class="form-description">
-                                        Start throttling when this percentage of the limit is reached (${this.throttleAtPercent}% =
-                                        ${Math.floor((this.maxTokensPerMin * this.throttleAtPercent) / 100)} tokens)
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="rate-limit-reset">
-                                <button class="action-button" @click=${this.resetRateLimitSettings} ?disabled=${!this.throttleTokens}>
-                                    Reset to Defaults
-                                </button>
-                                <div class="form-description" style="margin-top: 8px;">Reset rate limiting settings to default values</div>
+                        <div class="form-group">
+                            <label class="form-label">Throttle At Percent</label>
+                            <input type="number" class="form-control" value="${this.throttleAtPercent}" min="1" max="99" step="1" ${!this.throttleTokens ? 'disabled' : ''} />
+                            <div class="form-description">
+                                Start throttling when this percentage of the limit is reached (${this.throttleAtPercent}% = ${Math.floor((this.maxTokensPerMin * this.throttleAtPercent) / 100)} tokens)
                             </div>
                         </div>
                     </div>
-                </div>
-
-
-
-                <!-- Data Management Section -->
-                <div class="advanced-section danger-section">
-                    <div class="section-title danger">
-                        <span>🗑️ Data Management</span>
-                    </div>
-                    <div class="danger-box">
-                        <span class="danger-icon">⚠️</span>
-                        <span><strong>Important:</strong> This action will permanently delete all local data and cannot be undone.</span>
-                    </div>
-
-                    <div>
-                        <button class="action-button danger-button" @click=${this.clearLocalData} ?disabled=${this.isClearing}>
-                            ${this.isClearing ? '🔄 Clearing...' : '🗑️ Clear All Local Data'}
-                        </button>
-
-                        ${this.statusMessage
-                            ? html`
-                                  <div class="status-message ${this.statusType === 'success' ? 'status-success' : 'status-error'}">
-                                      ${this.statusMessage}
-                                  </div>
-                              `
-                            : ''}
+                    <div class="rate-limit-reset">
+                        <button class="action-button" ${!this.throttleTokens ? 'disabled' : ''}>Reset to Defaults</button>
+                        <div class="form-description" style="margin-top: 8px;">Reset rate limiting settings to default values</div>
                     </div>
                 </div>
             </div>
         `;
+        const throttleCheckbox = rateLimitSection.querySelector('#throttle-tokens');
+        const maxTokensInput = rateLimitSection.querySelector('.form-row .form-group:first-child input');
+        const throttlePercentInput = rateLimitSection.querySelector('.form-row .form-group:last-child input');
+        const resetButton = rateLimitSection.querySelector('.rate-limit-reset .action-button');
+        throttleCheckbox.addEventListener('change', (e) => this.handleThrottleTokensChange(e));
+        maxTokensInput.addEventListener('input', (e) => this.handleMaxTokensChange(e));
+        throttlePercentInput.addEventListener('input', (e) => this.handleThrottlePercentChange(e));
+        resetButton.addEventListener('click', () => this.resetRateLimitSettings());
+
+        // Data Management Section
+        const dataManagementSection = document.createElement('div');
+        dataManagementSection.className = 'advanced-section danger-section';
+        dataManagementSection.innerHTML = `
+            <div class="section-title danger"><span>🗑️ Data Management</span></div>
+            <div class="danger-box">
+                <span class="danger-icon">⚠️</span>
+                <span><strong>Important:</strong> This action will permanently delete all local data and cannot be undone.</span>
+            </div>
+            <div>
+                <button class="action-button danger-button" ${this.isClearing ? 'disabled' : ''}>
+                    ${this.isClearing ? '🔄 Clearing...' : '🗑️ Clear All Local Data'}
+                </button>
+                ${this.statusMessage ? `<div class="status-message ${this.statusType === 'success' ? 'status-success' : 'status-error'}">${this.statusMessage}</div>` : ''}
+            </div>
+        `;
+        const clearButton = dataManagementSection.querySelector('.danger-button');
+        clearButton.addEventListener('click', () => this.clearLocalData());
+
+        container.appendChild(contentProtectionSection);
+        container.appendChild(rateLimitSection);
+        container.appendChild(dataManagementSection);
+
+        this.shadowRoot.innerHTML = '';
+        this.shadowRoot.appendChild(style);
+        this.shadowRoot.appendChild(container);
     }
 }
 

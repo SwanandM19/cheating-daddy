@@ -1,11 +1,19 @@
-import { html, css, LitElement } from '../../assets/lit-core-2.7.4.min.js';
 import { resizeLayout } from '../../utils/windowResize.js';
 
-export class HelpView extends LitElement {
-    static styles = css`
+export class HelpView extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.onExternalLinkClick = () => {};
+        this.keybinds = this.getDefaultKeybinds();
+        this.loadKeybinds();
+    }
+
+    static get styles() {
+        return `
         * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            cursor: default;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: var(--custom-cursor);
             user-select: none;
         }
 
@@ -21,11 +29,13 @@ export class HelpView extends LitElement {
         }
 
         .option-group {
-            background: var(--card-background, rgba(255, 255, 255, 0.04));
-            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-            border-radius: 6px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
             padding: 16px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .option-label {
@@ -229,28 +239,16 @@ export class HelpView extends LitElement {
             color: var(--text-color);
             user-select: text;
         }
-    `;
-
-    static properties = {
-        onExternalLinkClick: { type: Function },
-        keybinds: { type: Object },
-    };
-
-    constructor() {
-        super();
-        this.onExternalLinkClick = () => {};
-        this.keybinds = this.getDefaultKeybinds();
-        this.loadKeybinds();
+        `;
     }
 
     connectedCallback() {
-        super.connectedCallback();
-        // Resize window for this view
+        this.render();
         resizeLayout();
     }
 
     getDefaultKeybinds() {
-        const isMac = cheddar.isMacOS || navigator.platform.includes('Mac');
+        const isMac = window.cheddar?.isMacOS || navigator.platform.includes('Mac');
         return {
             moveUp: isMac ? 'Alt+Up' : 'Ctrl+Up',
             moveDown: isMac ? 'Alt+Down' : 'Ctrl+Down',
@@ -279,7 +277,7 @@ export class HelpView extends LitElement {
     }
 
     formatKeybind(keybind) {
-        return keybind.split('+').map(key => html`<span class="key">${key}</span>`);
+        return keybind.split('+').map(key => `<span class="key">${key}</span>`).join('');
     }
 
     handleExternalLinkClick(url) {
@@ -287,173 +285,173 @@ export class HelpView extends LitElement {
     }
 
     render() {
-        const isMacOS = cheddar.isMacOS || false;
-        const isLinux = cheddar.isLinux || false;
+        const style = document.createElement('style');
+        style.textContent = HelpView.styles;
 
-        return html`
-            <div class="help-container">
-                <div class="option-group">
-                    <div class="option-label">
-                        <span>Community & Support</span>
+        const container = document.createElement('div');
+        container.className = 'help-container';
+
+        // Community & Support
+        const communityGroup = document.createElement('div');
+        communityGroup.className = 'option-group';
+        communityGroup.innerHTML = `
+            <div class="option-label"><span>Community & Support</span></div>
+            <div class="community-links">
+                <div class="community-link">🌐 Official Website</div>
+                <div class="community-link">📂 GitHub Repository</div>
+                <div class="community-link">💬 Discord Community</div>
+            </div>
+        `;
+        const communityLinks = communityGroup.querySelectorAll('.community-link');
+        communityLinks[0].addEventListener('click', () => this.handleExternalLinkClick('https://cheatingdaddy.com'));
+        communityLinks[1].addEventListener('click', () => this.handleExternalLinkClick('https://github.com/sohzm/cheating-daddy'));
+        communityLinks[2].addEventListener('click', () => this.handleExternalLinkClick('https://discord.gg/GCBdubnXfJ'));
+
+        // Keyboard Shortcuts
+        const shortcutsGroup = document.createElement('div');
+        shortcutsGroup.className = 'option-group';
+        shortcutsGroup.innerHTML = `
+            <div class="option-label"><span>Keyboard Shortcuts</span></div>
+            <div class="keyboard-section">
+                <div class="keyboard-group">
+                    <div class="keyboard-group-title">Window Movement</div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Move window up</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveUp)}</div>
                     </div>
-                    <div class="community-links">
-                        <div class="community-link" @click=${() => this.handleExternalLinkClick('https://cheatingdaddy.com')}>
-                            🌐 Official Website
-                        </div>
-                        <div class="community-link" @click=${() => this.handleExternalLinkClick('https://github.com/sohzm/cheating-daddy')}>
-                            📂 GitHub Repository
-                        </div>
-                        <div class="community-link" @click=${() => this.handleExternalLinkClick('https://discord.gg/GCBdubnXfJ')}>
-                            💬 Discord Community
-                        </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Move window down</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveDown)}</div>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Move window left</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveLeft)}</div>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Move window right</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveRight)}</div>
                     </div>
                 </div>
-
-                <div class="option-group">
-                    <div class="option-label">
-                        <span>Keyboard Shortcuts</span>
+                <div class="keyboard-group">
+                    <div class="keyboard-group-title">Window Control</div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Toggle click-through mode</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.toggleClickThrough)}</div>
                     </div>
-                    <div class="keyboard-section">
-                        <div class="keyboard-group">
-                            <div class="keyboard-group-title">Window Movement</div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Move window up</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveUp)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Move window down</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveDown)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Move window left</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveLeft)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Move window right</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.moveRight)}</div>
-                            </div>
-                        </div>
-
-                        <div class="keyboard-group">
-                            <div class="keyboard-group-title">Window Control</div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Toggle click-through mode</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.toggleClickThrough)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Toggle window visibility</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.toggleVisibility)}</div>
-                            </div>
-                        </div>
-
-                        <div class="keyboard-group">
-                            <div class="keyboard-group-title">AI Actions</div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Take screenshot and ask for next step</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.nextStep)}</div>
-                            </div>
-                        </div>
-
-                        <div class="keyboard-group">
-                            <div class="keyboard-group-title">Response Navigation</div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Previous response</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.previousResponse)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Next response</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.nextResponse)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Scroll response up</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.scrollUp)}</div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Scroll response down</span>
-                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.scrollDown)}</div>
-                            </div>
-                        </div>
-
-                        <div class="keyboard-group">
-                            <div class="keyboard-group-title">Text Input</div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">Send message to AI</span>
-                                <div class="shortcut-keys"><span class="key">Enter</span></div>
-                            </div>
-                            <div class="shortcut-item">
-                                <span class="shortcut-description">New line in text input</span>
-                                <div class="shortcut-keys"><span class="key">Shift</span><span class="key">Enter</span></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="description" style="margin-top: 12px; font-style: italic; text-align: center;">
-                        💡 You can customize these shortcuts in the Settings page!
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Toggle window visibility</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.toggleVisibility)}</div>
                     </div>
                 </div>
-
-                <div class="option-group">
-                    <div class="option-label">
-                        <span>How to Use</span>
-                    </div>
-                    <div class="usage-steps">
-                        <div class="usage-step"><strong>Start a Session:</strong> Enter your Gemini API key and click "Start Session"</div>
-                        <div class="usage-step"><strong>Customize:</strong> Choose your profile and language in the settings</div>
-                        <div class="usage-step">
-                            <strong>Position Window:</strong> Use keyboard shortcuts to move the window to your desired location
-                        </div>
-                        <div class="usage-step">
-                            <strong>Click-through Mode:</strong> Use ${this.formatKeybind(this.keybinds.toggleClickThrough)} to make the window
-                            click-through
-                        </div>
-                        <div class="usage-step"><strong>Get AI Help:</strong> The AI will analyze your screen and audio to provide assistance</div>
-                        <div class="usage-step"><strong>Text Messages:</strong> Type questions or requests to the AI using the text input</div>
-                        <div class="usage-step">
-                            <strong>Navigate Responses:</strong> Use ${this.formatKeybind(this.keybinds.previousResponse)} and
-                            ${this.formatKeybind(this.keybinds.nextResponse)} to browse through AI responses
-                        </div>
+                <div class="keyboard-group">
+                    <div class="keyboard-group-title">AI Actions</div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Take screenshot and ask for next step</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.nextStep)}</div>
                     </div>
                 </div>
-
-                <div class="option-group">
-                    <div class="option-label">
-                        <span>Supported Profiles</span>
+                <div class="keyboard-group">
+                    <div class="keyboard-group-title">Response Navigation</div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Previous response</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.previousResponse)}</div>
                     </div>
-                    <div class="profiles-grid">
-                        <div class="profile-item">
-                            <div class="profile-name">Job Interview</div>
-                            <div class="profile-description">Get help with interview questions and responses</div>
-                        </div>
-                        <div class="profile-item">
-                            <div class="profile-name">Sales Call</div>
-                            <div class="profile-description">Assistance with sales conversations and objection handling</div>
-                        </div>
-                        <div class="profile-item">
-                            <div class="profile-name">Business Meeting</div>
-                            <div class="profile-description">Support for professional meetings and discussions</div>
-                        </div>
-                        <div class="profile-item">
-                            <div class="profile-name">Presentation</div>
-                            <div class="profile-description">Help with presentations and public speaking</div>
-                        </div>
-                        <div class="profile-item">
-                            <div class="profile-name">Negotiation</div>
-                            <div class="profile-description">Guidance for business negotiations and deals</div>
-                        </div>
-                        <div class="profile-item">
-                            <div class="profile-name">Exam Assistant</div>
-                            <div class="profile-description">Academic assistance for test-taking and exam questions</div>
-                        </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Next response</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.nextResponse)}</div>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Scroll response up</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.scrollUp)}</div>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Scroll response down</span>
+                        <div class="shortcut-keys">${this.formatKeybind(this.keybinds.scrollDown)}</div>
                     </div>
                 </div>
-
-                <div class="option-group">
-                    <div class="option-label">
-                        <span>Audio Input</span>
+                <div class="keyboard-group">
+                    <div class="keyboard-group-title">Text Input</div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">Send message to AI</span>
+                        <div class="shortcut-keys"><span class="key">Enter</span></div>
                     </div>
-                    <div class="description">The AI listens to conversations and provides contextual assistance based on what it hears.</div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-description">New line in text input</span>
+                        <div class="shortcut-keys"><span class="key">Shift</span><span class="key">Enter</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="description" style="margin-top: 12px; font-style: italic; text-align: center;">
+                💡 You can customize these shortcuts in the Settings page!
+            </div>
+        `;
+
+        // How to Use
+        const usageGroup = document.createElement('div');
+        usageGroup.className = 'option-group';
+        usageGroup.innerHTML = `
+            <div class="option-label"><span>How to Use</span></div>
+            <div class="usage-steps">
+                <div class="usage-step"><strong>Start a Session:</strong> Enter your Gemini API key and click "Start Session"</div>
+                <div class="usage-step"><strong>Customize:</strong> Choose your profile and language in the settings</div>
+                <div class="usage-step"><strong>Position Window:</strong> Use keyboard shortcuts to move the window to your desired location</div>
+                <div class="usage-step"><strong>Click-through Mode:</strong> Use ${this.formatKeybind(this.keybinds.toggleClickThrough)} to make the window click-through</div>
+                <div class="usage-step"><strong>Get AI Help:</strong> The AI will analyze your screen and audio to provide assistance</div>
+                <div class="usage-step"><strong>Text Messages:</strong> Type questions or requests to the AI using the text input</div>
+                <div class="usage-step"><strong>Navigate Responses:</strong> Use ${this.formatKeybind(this.keybinds.previousResponse)} and ${this.formatKeybind(this.keybinds.nextResponse)} to browse through AI responses</div>
+            </div>
+        `;
+
+        // Supported Profiles
+        const profilesGroup = document.createElement('div');
+        profilesGroup.className = 'option-group';
+        profilesGroup.innerHTML = `
+            <div class="option-label"><span>Supported Profiles</span></div>
+            <div class="profiles-grid">
+                <div class="profile-item">
+                    <div class="profile-name">Job Interview</div>
+                    <div class="profile-description">Get help with interview questions and responses</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-name">Sales Call</div>
+                    <div class="profile-description">Assistance with sales conversations and objection handling</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-name">Business Meeting</div>
+                    <div class="profile-description">Support for professional meetings and discussions</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-name">Presentation</div>
+                    <div class="profile-description">Help with presentations and public speaking</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-name">Negotiation</div>
+                    <div class="profile-description">Guidance for business negotiations and deals</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-name">Exam Assistant</div>
+                    <div class="profile-description">Academic assistance for test-taking and exam questions</div>
                 </div>
             </div>
         `;
+
+        // Audio Input
+        const audioGroup = document.createElement('div');
+        audioGroup.className = 'option-group';
+        audioGroup.innerHTML = `
+            <div class="option-label"><span>Audio Input</span></div>
+            <div class="description">The AI listens to conversations and provides contextual assistance based on what it hears.</div>
+        `;
+
+        container.appendChild(communityGroup);
+        container.appendChild(shortcutsGroup);
+        container.appendChild(usageGroup);
+        container.appendChild(profilesGroup);
+        container.appendChild(audioGroup);
+
+        this.shadowRoot.innerHTML = '';
+        this.shadowRoot.appendChild(style);
+        this.shadowRoot.appendChild(container);
     }
 }
 

@@ -5,11 +5,11 @@ export class CustomizeView extends LitElement {
     static styles = css`
         * {
             font-family:
-                'Inter',
+                'Space Grotesk',
                 -apple-system,
                 BlinkMacSystemFont,
                 sans-serif;
-            cursor: default;
+            cursor: var(--custom-cursor);
             user-select: none;
         }
 
@@ -27,11 +27,13 @@ export class CustomizeView extends LitElement {
         }
 
         .settings-section {
-            background: var(--card-background, rgba(255, 255, 255, 0.04));
-            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-            border-radius: 6px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
             padding: 16px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .section-title {
@@ -99,22 +101,26 @@ export class CustomizeView extends LitElement {
         }
 
         .form-control {
-            background: var(--input-background, rgba(0, 0, 0, 0.3));
+            background: var(--glass-bg);
             color: var(--text-color);
-            border: 1px solid var(--input-border, rgba(255, 255, 255, 0.15));
-            padding: 8px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            transition: all 0.15s ease;
+            border: 1px solid var(--glass-border);
+            padding: 10px 14px;
+            border-radius: var(--border-radius-sm);
+            font-size: 13px;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
             min-height: 16px;
             font-weight: 400;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--focus-border-color, #007aff);
-            box-shadow: 0 0 0 2px var(--focus-shadow, rgba(0, 122, 255, 0.1));
-            background: var(--input-focus-background, rgba(0, 0, 0, 0.4));
+            border-color: var(--focus-border-color);
+            box-shadow: 0 0 0 1px var(--focus-border-color), 0 4px 12px rgba(59, 130, 246, 0.15);
+            background: var(--input-background-focus);
         }
 
         .form-control:hover:not(:focus) {
@@ -186,15 +192,25 @@ export class CustomizeView extends LitElement {
         }
 
         .reset-keybinds-button {
-            background: var(--button-background, rgba(255, 255, 255, 0.1));
+            background: var(--button-background);
             color: var(--text-color);
-            border: 1px solid var(--button-border, rgba(255, 255, 255, 0.15));
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 11px;
+            border: 1px solid var(--glass-border);
+            padding: 8px 14px;
+            border-radius: var(--border-radius-sm);
+            font-size: 12px;
             font-weight: 500;
+            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
+        }
+
+        .reset-keybinds-button:hover {
+            background: var(--button-background-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .reset-keybinds-button:hover {
@@ -210,7 +226,7 @@ export class CustomizeView extends LitElement {
             width: 100%;
             border-collapse: collapse;
             margin-top: 8px;
-            border-radius: 4px;
+            border-radius: var(--border-radius-sm);
             overflow: hidden;
         }
 

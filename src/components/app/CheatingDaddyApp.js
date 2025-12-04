@@ -12,10 +12,10 @@ export class CheatingDaddyApp extends LitElement {
     static styles = css`
         * {
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0px;
             padding: 0px;
-            cursor: default;
+            cursor: var(--custom-cursor);
             user-select: none;
         }
 
@@ -23,13 +23,13 @@ export class CheatingDaddyApp extends LitElement {
             display: block;
             width: 100%;
             height: 100vh;
-            background-color: var(--background-transparent);
+            background: Transparent;
             color: var(--text-color);
         }
 
         .window-container {
             height: 100vh;
-            border-radius: 7px;
+            border-radius: 12px;
             overflow: hidden;
         }
 
@@ -37,20 +37,44 @@ export class CheatingDaddyApp extends LitElement {
             display: flex;
             flex-direction: column;
             height: 100%;
+            gap: 10px;
+            padding: 10px;
         }
 
         .main-content {
             flex: 1;
             padding: var(--main-content-padding);
             overflow-y: auto;
-            margin-top: var(--main-content-margin-top);
-            border-radius: var(--content-border-radius);
-            transition: all 0.15s ease-out;
-            background: var(--main-content-background);
+            overflow-x: hidden;
+            margin-top: 0;
+            border-radius: 8px;
+            transition: all 0.3s ease-out;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: transparent;
+            border-radius: 8px;
+            z-index: 0;
+        }
+
+        .main-content > * {
+            position: relative;
+            z-index: 1;
         }
 
         .main-content.with-border {
-            border: 1px solid var(--border-color);
+            border: none;
+            box-shadow: none;
         }
 
         .main-content.assistant-view {
@@ -69,6 +93,7 @@ export class CheatingDaddyApp extends LitElement {
             transform: translateY(0);
             transition: opacity 0.15s ease-out, transform 0.15s ease-out;
             height: 100%;
+            overflow: visible;
         }
 
         .view-container.entering {

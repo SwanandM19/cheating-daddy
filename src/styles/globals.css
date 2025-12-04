@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/* Theme configuration using CSS variables */
+:root {
+    --color-background: oklch(10.84% 0.0387 264.05);
+    --color-foreground: oklch(98.14% 0.0085 257.1);
+    --color-card: oklch(10.84% 0.0387 264.05);
+    --color-card-foreground: oklch(98.14% 0.0085 257.1);
+    --color-popover: oklch(10.84% 0.0387 264.05);
+    --color-popover-foreground: oklch(98.14% 0.0085 257.1);
+    --color-primary: oklch(62.3% 0.171 252.57);
+    --color-primary-foreground: oklch(23.21% 0.0405 263.96);
+    --color-secondary: oklch(27.93% 0.0343 259.91);
+    --color-secondary-foreground: oklch(98.14% 0.0085 257.1);
+    --color-muted: oklch(27.93% 0.0343 259.91);
+    --color-muted-foreground: oklch(71.09% 0.0237 255.51);
+    --color-accent: oklch(27.93% 0.0343 259.91);
+    --color-accent-foreground: oklch(98.14% 0.0085 257.1);
+    --color-destructive: oklch(42.34% 0.1402 22.29);
+    --color-destructive-foreground: oklch(98.14% 0.0085 257.1);
+    --color-border: oklch(27.93% 0.0343 259.91);
+    --color-input: oklch(27.93% 0.0343 259.91);
+    --color-ring: oklch(54.61% 0.2032 262.88);
+    --radius: 0.5rem;
+}
+
+/* Base styles */
+* {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-app-region: drag;
+    /* Custom cursor is set in index-react.html */
+}
+
+/* Glass morphism utilities */
+.glass {
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.glass-light {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.no-drag {
+    -webkit-app-region: no-drag;
+}
+
+/* Make all interactive elements clickable (no-drag) */
+input,
+textarea,
+select,
+button,
+a,
+[role="button"],
+[contenteditable="true"] {
+    -webkit-app-region: no-drag;
+}
+
+/* Range inputs */
+input[type="range"] {
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Custom gradient backgrounds */
+.gradient-bg {
+    background: linear-gradient(135deg, #000000 0%, #0a0e27 25%, #0f172a 50%, #1e293b 75%, #1e3a8a 100%);
+}
+
+/* Animation for word reveal */
+@keyframes word-reveal {
+    from {
+        opacity: 0;
+        filter: blur(10px);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+.word-reveal {
+    animation: word-reveal 0.5s ease forwards;
+}

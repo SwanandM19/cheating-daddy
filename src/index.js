@@ -2,7 +2,21 @@ if (require('electron-squirrel-startup')) {
     process.exit(0);
 }
 
+const path = require('path');
 const { app, BrowserWindow, shell, ipcMain } = require('electron');
+
+// Enable auto-reload for development only
+if (!app.isPackaged) {
+    try {
+        require('electron-reload')(__dirname, {
+            electron: path.join(__dirname, '..', 'node_modules', '.bin', 'electron'),
+            hardResetMethod: 'exit'
+        });
+    } catch (e) {
+        // electron-reload not available, skip
+    }
+}
+
 const { createWindow, updateGlobalShortcuts } = require('./utils/window');
 const { setupGeminiIpcHandlers, stopMacOSAudioCapture, sendToRenderer } = require('./utils/gemini');
 const { initializeRandomProcessNames } = require('./utils/processRandomizer');

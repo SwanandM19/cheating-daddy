@@ -4,8 +4,8 @@ import { resizeLayout } from '../../utils/windowResize.js';
 export class HistoryView extends LitElement {
     static styles = css`
         * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            cursor: default;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: var(--custom-cursor);
             user-select: none;
         }
 
@@ -30,23 +30,29 @@ export class HistoryView extends LitElement {
         }
 
         .session-item {
-            background: var(--input-background);
-            border: 1px solid var(--button-border);
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 14px;
+            margin-bottom: 10px;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .session-item:hover {
-            background: var(--hover-background);
-            border-color: var(--focus-border-color);
+            background: var(--button-background-hover);
+            border-color: var(--glass-border);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .session-item.selected {
-            background: var(--focus-box-shadow);
+            background: var(--screen-option-selected-background);
             border-color: var(--focus-border-color);
+            box-shadow: 0 0 0 1px var(--focus-border-color);
         }
 
         .session-header {
@@ -80,25 +86,32 @@ export class HistoryView extends LitElement {
         .conversation-view {
             flex: 1;
             overflow-y: auto;
-            background: var(--main-content-background);
-            border: 1px solid var(--button-border);
-            border-radius: 6px;
-            padding: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 16px;
             padding-bottom: 20px;
             user-select: text;
             cursor: text;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .message {
-            margin-bottom: 6px;
-            padding: 6px 10px;
+            margin-bottom: 8px;
+            padding: 10px 14px;
             border-left: 3px solid transparent;
-            font-size: 12px;
-            line-height: 1.4;
-            background: var(--input-background);
-            border-radius: 0 4px 4px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            background: var(--glass-bg);
+            border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
             user-select: text;
             cursor: text;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--glass-border);
+            border-left: 3px solid transparent;
         }
 
         .message.user {
@@ -119,20 +132,26 @@ export class HistoryView extends LitElement {
         .back-button {
             background: var(--button-background);
             color: var(--text-color);
-            border: 1px solid var(--button-border);
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 11px;
+            border: 1px solid var(--glass-border);
+            padding: 8px 14px;
+            border-radius: var(--border-radius-sm);
+            font-size: 12px;
             font-weight: 500;
+            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .back-button:hover {
-            background: var(--hover-background);
+            background: var(--button-background-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-ring);
         }
 
         .legend {
@@ -234,11 +253,11 @@ export class HistoryView extends LitElement {
             color: var(--description-color);
             border: none;
             padding: 8px 16px;
-            border-radius: 4px 4px 0 0;
+            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.3s ease;
         }
 
         .tab:hover {
@@ -253,12 +272,15 @@ export class HistoryView extends LitElement {
         }
 
         .saved-response-item {
-            background: var(--input-background);
-            border: 1px solid var(--button-border);
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 8px;
-            transition: all 0.15s ease;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 14px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: var(--backdrop-blur);
+            -webkit-backdrop-filter: var(--backdrop-blur);
+            box-shadow: 0 0 0 1px var(--glass-ring);
         }
 
         .saved-response-header {
